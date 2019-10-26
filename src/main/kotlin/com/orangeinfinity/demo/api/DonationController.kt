@@ -60,8 +60,21 @@ class DonationController(
     @CrossOrigin(origins = ["*"])
     @PostMapping("/newDonation/get")
     fun getNextDonation(): String {
+        //WARNING! AHTUNG! BIDLOCODE
+        val donations = donationRepository.findAll()
+        val notShowedDonations = donations.filter {
+            it.isFee && !it.visited
+        }
+        if (notShowedDonations.isNullOrEmpty()) {
+            return "{}"
+        }
 
-        return "{}"
+        val sortedNotShowedDonations = notShowedDonations.sortedBy { it.payedDate }
+        val nextDonation = sortedNotShowedDonations.first()
+        nextDonation.visited = true
+        donationRepository.save(nextDonation)
+
+        return JacksonUtils.serializingObjectMapper().writeValueAsString(nextDonation)
     }
 
     private fun buildNotPaidDonation(invoice: InvoiceResultDto, nickname: String, comment: String): Donation {

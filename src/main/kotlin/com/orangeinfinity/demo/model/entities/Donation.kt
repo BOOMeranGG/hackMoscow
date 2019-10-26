@@ -32,4 +32,7 @@ class Donation {
 
     @Column(name = "PAYED_TIME")
     lateinit var payedDate: Date
+
+    @Column(name = "VISITED")
+    var visited = false
 }
