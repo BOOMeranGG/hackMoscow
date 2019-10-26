@@ -8,8 +8,8 @@ import javax.persistence.*
 class Donation {
 
     @Id
-    @Column(name = "ID")
-    var id = ""
+    @Column(name = "EXT_ID")
+    var extId = ""
 
     @Column(name = "NICKNAME")
     lateinit var nickname: String
@@ -18,7 +18,6 @@ class Donation {
     lateinit var currencyCode: String
 
     @Column(name = "COMMENT")
-    @Lob
     lateinit var comment: String
 
     @Column(name = "AMOUNT")

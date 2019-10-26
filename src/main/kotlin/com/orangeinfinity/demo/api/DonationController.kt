@@ -2,6 +2,7 @@ package com.orangeinfinity.demo.api
 
 import com.orangeinfinity.demo.model.entities.Donation
 import com.orangeinfinity.demo.model.invoice.InvoiceCreateDto
+import com.orangeinfinity.demo.model.invoice.InvoiceDto
 import com.orangeinfinity.demo.model.invoice.InvoiceResultDto
 import com.orangeinfinity.demo.model.invoice.LinkDto
 import com.orangeinfinity.demo.repositories.DonationRepository
@@ -24,6 +25,7 @@ class DonationController(
     @CrossOrigin(origins = ["*"])
     @PostMapping("newDonation/create")
     fun createInvoice(@RequestBody requestJson: String): String? {
+        log.info("Start createInvoice()")
         val invoiceDto = JacksonUtils.serializingObjectMapper().readValue(requestJson, InvoiceCreateDto::class.java)
         val invoiceResponse = plasmaApiService.createInvoice(
                 apiKey,
@@ -34,7 +36,7 @@ class DonationController(
         log.info("Creating invoice ended. Result: $invoiceResponse")
 
         val invoiceResultDto = JacksonUtils.serializingObjectMapper()
-                .readValue(invoiceResponse, InvoiceResultDto::class.java)
+                .readValue(invoiceResponse, InvoiceDto::class.java)
         val linkDto = LinkDto(invoiceResultDto.link)
         val donation = buildNotPaidDonation(invoiceResultDto, invoiceDto.nickname, invoiceDto.comment)
         donationRepository.save(donation)
@@ -48,19 +50,20 @@ class DonationController(
         log.info("Received webhook info: $requestJson")
         val invoiceResult = JacksonUtils.serializingObjectMapper().readValue(requestJson, InvoiceResultDto::class.java)
 
-        if (invoiceResult.status == SUCCESS_CODE) {
-            val donation = donationRepository.getOne(invoiceResult.id)
-            donation.link = invoiceResult.link
+        if (invoiceResult.invoice.status == SUCCESS_CODE) {
+            val donation = donationRepository.getOne(invoiceResult.invoice.extId)
+            donation.link = invoiceResult.invoice.link
             donation.isFee = true
-            donation.payedDate = invoiceResult.createdAt
+            donation.payedDate = invoiceResult.invoice.createdAt
             donationRepository.save(donation)
         }
     }
 
     @CrossOrigin(origins = ["*"])
-    @PostMapping("/newDonation/get")
+    @GetMapping("/newDonation/get")
     fun getNextDonation(): String {
         //WARNING! AHTUNG! BIDLOCODE
+        log.info("Start to find last donation")
         val donations = donationRepository.findAll()
         val notShowedDonations = donations.filter {
             it.isFee && !it.visited
@@ -74,12 +77,14 @@ class DonationController(
         nextDonation.visited = true
         donationRepository.save(nextDonation)
 
-        return JacksonUtils.serializingObjectMapper().writeValueAsString(nextDonation)
+        val result = JacksonUtils.serializingObjectMapper().writeValueAsString(nextDonation)
+        log.info("Last donation: $result")
+        return result
     }
 
-    private fun buildNotPaidDonation(invoice: InvoiceResultDto, nickname: String, comment: String): Donation {
+    private fun buildNotPaidDonation(invoice: InvoiceDto, nickname: String, comment: String): Donation {
         val donation = Donation()
-        donation.id = invoice.id
+        donation.extId = invoice.extId
         donation.nickname = nickname
         donation.currencyCode = invoice.currencyCode
         donation.comment = comment
