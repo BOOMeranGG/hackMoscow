@@ -1,10 +1,12 @@
 package com.orangeinfinity.demo.model.invoice
 
+import java.util.*
+
 class InvoiceResultDto(
-        val id: String,
+        var id: String,
         val amount: Double,
         val currencyCode: String,
         val status: String,
-        val createdAt: String,
+        val createdAt: Date,
         val link: String
 )

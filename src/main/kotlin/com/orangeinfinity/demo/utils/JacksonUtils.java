@@ -1,4 +1,4 @@
-package com.orangeinfinity.demo;
+package com.orangeinfinity.demo.utils;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

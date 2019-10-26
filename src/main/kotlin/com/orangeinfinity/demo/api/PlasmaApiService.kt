@@ -1,4 +1,4 @@
-package com.orangeinfinity.demo
+package com.orangeinfinity.demo.api
 
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
