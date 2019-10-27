@@ -9,6 +9,7 @@ import com.orangeinfinity.demo.repositories.DonationRepository
 import com.orangeinfinity.demo.utils.JacksonUtils
 import org.apache.commons.logging.LogFactory
 import org.springframework.web.bind.annotation.*
+import java.util.stream.Collectors
 
 
 private const val SUCCESS_CODE = "success"
@@ -79,6 +80,28 @@ class DonationController(
 
         val result = JacksonUtils.serializingObjectMapper().writeValueAsString(nextDonation)
         log.info("Last donation: $result")
+        return result
+    }
+
+    @CrossOrigin(origins = ["*"])
+    @GetMapping("/topDonations/get/{num}")
+    fun getTopDonation(@PathVariable num: Long): String {
+        log.info("Start to getting Top Donations ")
+        val donations = donationRepository.findAll().filter {
+            it.isFee
+        }
+
+        val result: String
+        result = if (donations.size <= num) {
+            log.info("Num is more or equals, than all donations")
+            JacksonUtils.serializingObjectMapper().writeValueAsString(donations)
+        } else {
+            log.info("Getting TOP $num donations")
+            val topDonations = donations.stream().limit(num).collect(Collectors.toList())
+            JacksonUtils.serializingObjectMapper().writeValueAsString(topDonations)
+        }
+
+        log.info("Top donation result: $result")
         return result
     }
 
