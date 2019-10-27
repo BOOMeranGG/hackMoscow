@@ -9,5 +9,5 @@ Hack.Moscow
 # А теперь картинки
 Кнопка донатов выглядит вот так:
 ![](https://github.com/BOOMeranGG/hackMoscow/blob/master/res/1.jpg)
-При нажатии зритель вводит данные не переставая смотреть трансляцию!
+После нажатия зритель вводит данные не переставая смотреть трансляцию!
 ![](https://github.com/BOOMeranGG/hackMoscow/blob/master/res/2.jpg)
